@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.ResourceBundle;
 
 public class DBTest {
 
@@ -22,9 +23,10 @@ public class DBTest {
     @Test
     @DisplayName("Check credentials of database and database name")
     public void testGetConnectionWithParameter() throws SQLException {
-        String db = "RevSpeed";
-        String username = "root";
-        String password = "7872";
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("sql");
+        String db = resourceBundle.getString("db");
+        String username = resourceBundle.getString("username");
+        String password = resourceBundle.getString("password");
 
         Connection connection = DB.getConnection(db, username, password);
 

@@ -3,19 +3,22 @@ package com.revspeed.db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ResourceBundle;
 
 public class DB {
 
     static Connection connection = null;
+
     public static Connection getConnection() throws SQLException {
 
         if (connection != null){
             return connection;
         }
 
-        String db = "RevSpeed";
-        String username = "root";
-        String password = "7872";
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("sql");
+        String db = resourceBundle.getString("db");
+        String username = resourceBundle.getString("username");
+        String password = resourceBundle.getString("password");
 
         return getConnection(db, username, password);
     }

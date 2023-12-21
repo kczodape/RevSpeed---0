@@ -16,17 +16,4 @@ public class MainTest {
         assertDoesNotThrow(()-> Main.main(new String[] {}));
     }
 
-    private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-    private final PrintStream originalOut = System.out;
-
-    @BeforeEach
-    public void setUpStreams() {
-        System.setOut(new PrintStream(outContent));
-    }
-
-    @AfterEach
-    public void restoreStreams() {
-        System.setOut(originalOut);
-    }
-
 }

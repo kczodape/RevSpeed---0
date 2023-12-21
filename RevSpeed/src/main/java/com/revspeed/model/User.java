@@ -6,20 +6,16 @@ public class User {
     private long phoneNumber;
     private String address;
     private String emailId;
-    private String Password;
-    private boolean isBoolean;
-    private boolean isDth;
+    private String password;
 
     public User(){}
 
-    public User(String name, long phoneNumber, String address, String emailId, String password, boolean isBoolean, boolean isDth) {
+    public User(String name, long phoneNumber, String address, String emailId, String password) {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.address = address;
         this.emailId = emailId;
-        Password = password;
-        this.isBoolean = isBoolean;
-        this.isDth = isDth;
+        this.password = password;
     }
 
     public String getName() {
@@ -55,39 +51,12 @@ public class User {
     }
 
     public String getPassword() {
-        return Password;
+        return password;
     }
 
     public void setPassword(String password) {
-        Password = password;
+        this.password = password;
     }
 
-    public boolean isBoolean() {
-        return isBoolean;
-    }
 
-    public void setBoolean(boolean aBoolean) {
-        isBoolean = aBoolean;
-    }
-
-    public boolean isDth() {
-        return isDth;
-    }
-
-    public void setDth(boolean dth) {
-        isDth = dth;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "name='" + name + '\'' +
-                ", phoneNumber=" + phoneNumber +
-                ", address='" + address + '\'' +
-                ", emailId='" + emailId + '\'' +
-                ", Password='" + Password + '\'' +
-                ", isBoolean=" + isBoolean +
-                ", isDth=" + isDth +
-                '}';
-    }
 }

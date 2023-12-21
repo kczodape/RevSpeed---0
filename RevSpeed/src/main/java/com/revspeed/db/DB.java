@@ -27,7 +27,7 @@ public class DB {
 
 //        try {
             connection = DriverManager.getConnection("jdbc:mysql://localhost/"+db+"?user="+username+"&password="+password);
-            System.out.println("Connection established........");
+//            System.out.println("Connection established........");
 //        }catch (SQLException e){
 //            e.printStackTrace();
 //        }

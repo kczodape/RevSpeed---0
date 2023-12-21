@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class DB {
 
     static Connection connection = null;
-    public static Connection getConnection(){
+    public static Connection getConnection() throws SQLException {
 
         if (connection != null){
             return connection;
@@ -20,14 +20,14 @@ public class DB {
         return getConnection(db, username, password);
     }
 
-    public static Connection getConnection(String db, String username, String password){
+    public static Connection getConnection(String db, String username, String password) throws SQLException{
 
-        try {
+//        try {
             connection = DriverManager.getConnection("jdbc:mysql://localhost/"+db+"?user="+username+"&password="+password);
             System.out.println("Connection established........");
-        }catch (SQLException e){
-            e.printStackTrace();
-        }
+//        }catch (SQLException e){
+//            e.printStackTrace();
+//        }
 
         return connection;
 

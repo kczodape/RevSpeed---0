@@ -17,7 +17,8 @@ public class Main {
     static Scanner sc = new Scanner(System.in);
     public static void main(String[] args) throws SQLException {
 
-        Connection connection = DB.getConnection();
+        UserService userService = new UserService();
+        User user = new User();
 
         System.out.println("Welcome to RevSpeed");
         System.out.println("Press 1: For Login\nPress 2: For Registration\nPress 3: For Exit");
@@ -26,12 +27,10 @@ public class Main {
 
         switch (check){
             case 1:
-                System.out.println("Login functionality in progree");
+                System.out.println("Login functionality in progrees");
                 break;
             case 2:
-                UserDao userDao = new UserDaoImpl(connection);
-                UserService userService = new UserService(userDao);
-                userService.registerUser(new User());
+                userService.registerUser(user);
                 break;
             case 3:
                 System.exit(0);
@@ -39,16 +38,6 @@ public class Main {
             default:
                 System.out.println("please press valid key !");
         }
-
-//
-//        UserDao userDao = new UserDaoImpl(connection);
-//        UserService userService = new UserService(userDao);
-//
-//        User user = new User("John000000 Doe", 9876543210L, "Sample Address", "john6@example.com", "password");
-//
-////        userService.registerUser(new User("Krunal", 9876543210L, "Uti", "krunal@gmail.com", "123456"));
-//        userService.registerUser(user);
-//        System.out.println("User inserted successfully!");
 
     }
 }

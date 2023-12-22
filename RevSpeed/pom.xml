@@ -30,6 +30,15 @@
             <version>8.0.33</version>
         </dependency>
 
+        <!--Dependency of mockito-->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.10.0</version> <!-- Use the latest version -->
+            <scope>test</scope>
+        </dependency>
+
+
     </dependencies>
 
     <build>

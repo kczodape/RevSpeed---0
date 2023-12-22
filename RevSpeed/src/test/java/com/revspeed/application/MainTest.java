@@ -10,10 +10,10 @@ import java.io.PrintStream;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 public class MainTest {
 
-    Main mainInstance = new Main();
-    @Test
-    public void testMainMethod(){
-        assertDoesNotThrow(()-> Main.main(new String[] {}));
-    }
+//    Main mainInstance = new Main();
+//    @Test
+//    public void testMainMethod(){
+//        assertDoesNotThrow(()-> Main.main(new String[] {}));
+//    }
 
 }

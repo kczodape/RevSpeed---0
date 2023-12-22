@@ -1,6 +1,7 @@
 package com.revspeed.dao.impl;
 
 import com.revspeed.dao.UserDao;
+import com.revspeed.db.DB;
 import com.revspeed.model.User;
 
 import java.sql.Connection;
@@ -10,21 +11,27 @@ import java.util.Scanner;
 
 public class UserDaoImpl implements UserDao {
 
-    private Connection connection;
+     public Connection connection;
+
+    {
+        try {
+            connection = DB.getConnection();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     static Scanner sc = new Scanner(System.in);
 
-    public UserDaoImpl(Connection connection){
-        this.connection = connection;
-    }
     @Override
     public void registerUser(User user) {
         System.out.println("Please enter your details");
-        System.out.println("\n");
 
         System.out.print("Enter your name: ");
         String name = sc.nextLine();
         System.out.print("Enter your phone number: ");
         Long phone_number = sc.nextLong();
+        sc.nextLine();
         System.out.print("Enter your address: ");
         String address = sc.nextLine();
         System.out.print("Enter your email: ");

@@ -16,6 +16,9 @@ is_dth BOOLEAN DEFAULT FALSE,
 role VARCHAR(15) NOT NULL DEFAULT "user"
 );
 
+INSERT INTO User (name, phone_number, address, email_id, password) VALUES ('Jhon', 9876543210, 'maxico', 'jhon1@gmail.com', '123456');
+select * from User;
+
 INSERT INTO User (id, name, phone_number, address, email_id, password, is_broadband) VALUES (1, 'Krunal Zodape', '1234567890', 'Nepal, India', 'krunal@gmail.com', 'RevSpeed01', TRUE), (3, 'Paresh Zodape', '1254789653', 'Gujrat, India', 'paresh@gmail.com', 'RevSpeed03', TRUE), (5, 'Jhon Sharma', '8532145986', 'Chennai, India', 'jhon@gmail.com', 'RevSpeed05', TRUE);
 
 INSERT INTO User (id, name, phone_number, address, email_id, password, is_dth) VALUES (2, 'Rupali Wadkar', '3265789423', 'Rajsthan, India', 'rupali@gmail.com', 'RevSpeed02', TRUE), (4, 'Aakash Solanke', '6598742326', 'Uttarpradesh, India', 'aakash@gmail.com', 'RevSpeed04', TRUE);
@@ -269,3 +272,24 @@ JOIN
 WHERE USL.user_id = 1;
 
 
+DELIMITER $$
+CREATE FUNCTION CustomerFunction(
+	credit DECIMAL(10 ,2)
+)
+RETURNS VARCHAR(20)
+DETERMINISTIC
+BEGIN
+	DECLARE customerLevel VARCHAR(20);
+    
+    IF credit>50000 THEN
+		SET customerLevel = 'PLATINUM';
+	ELSEIF (credit >= 50000 AND credit <= 100000) THEN
+		SET customerLevel = 'GOLD';
+	ELSEiF credit < 50000 THEN
+		SET customerLevel = 'silver';
+	END IF;
+    RETURN (customerLevel);
+END $$
+DELIMITER ;
+
+SELECT customerName, CustomerFunction(creditLimit) FROM customers ORDER BY customerName;

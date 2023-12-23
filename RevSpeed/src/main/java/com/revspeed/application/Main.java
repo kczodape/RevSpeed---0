@@ -11,13 +11,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     static Scanner sc = new Scanner(System.in);
     public static void main(String[] args) throws SQLException {
 
-        UserService userService = new UserService();
+        // Initialize database connection
+        Connection connection = DB.getConnection();
+        UserDao userDao = new UserDaoImpl(connection);
+        UserService userService = new UserService(userDao);
         User user = new User();
 
         System.out.println("Welcome to RevSpeed");
@@ -27,7 +28,7 @@ public class Main {
 
         switch (check){
             case 1:
-                System.out.println("Login functionality in progrees");
+                userService.loginUser();
                 break;
             case 2:
                 userService.registerUser(user);

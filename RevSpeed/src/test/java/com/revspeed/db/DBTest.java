@@ -11,6 +11,7 @@ import java.util.ResourceBundle;
 
 public class DBTest {
 
+    DB db = new DB();
     @Test
     @DisplayName("Check instance of connection")
     public void testGetConnection() throws SQLException {

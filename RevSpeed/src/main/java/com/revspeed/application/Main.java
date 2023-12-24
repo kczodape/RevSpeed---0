@@ -20,25 +20,30 @@ public class Main {
         UserDao userDao = new UserDaoImpl(connection);
         UserService userService = new UserService(userDao);
         User user = new User();
-
+        int choice=0;
         System.out.println("Welcome to RevSpeed");
-        System.out.println("Press 1: For Login\nPress 2: For Registration\nPress 3: For Exit");
+        do {
+            System.out.println("Press 1: For Login\nPress 2: For Registration\nPress 3: For Exit");
 
-        int check = sc.nextInt();
+            int check = sc.nextInt();
 
-        switch (check){
-            case 1:
-                userService.loginUser();
-                break;
-            case 2:
-                userService.registerUser(user);
-                break;
-            case 3:
-                System.exit(0);
-                break;
-            default:
-                System.out.println("please press valid key !");
-        }
+            switch (check) {
+                case 1:
+                    userService.loginUser();
+                    break;
+                case 2:
+                    userService.registerUser(user);
+                    break;
+                case 3:
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("please press valid key !");
 
+            }
+
+            System.out.println("Press 1 to continue or any key to exit !");
+            choice=sc.nextInt();
+        }while(choice==1);
     }
 }

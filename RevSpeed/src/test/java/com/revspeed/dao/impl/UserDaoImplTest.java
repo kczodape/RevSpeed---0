@@ -3,16 +3,14 @@ package com.revspeed.dao.impl;
 import com.revspeed.dao.UserDao;
 import com.revspeed.model.User;
 import com.revspeed.services.UserService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.sql.*;
 import java.sql.Types;
 import java.util.Scanner;
@@ -22,6 +20,20 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class UserDaoImplTest {
+
+    private InputStream originalSystemIn;
+
+    @BeforeEach
+    void setUp() {
+        // Save the original System.in
+        originalSystemIn = System.in;
+    }
+
+    @AfterEach
+    void tearDown() {
+        // Reset System.in after each test
+        System.setIn(originalSystemIn);
+    }
 
     @Test
     void testRegisterUser_SuccessfulRegistration() throws SQLException {
@@ -49,9 +61,49 @@ public class UserDaoImplTest {
         verify(mockedCallableStatement).setString(eq(5), eq("password"));
 
         verify(mockedCallableStatement).executeUpdate();
-
         // Reset System.in after the test
         System.setIn(System.in);
+    }
+
+    @Test
+    void testLoginUser_SuccessfulLogin() throws SQLException, IOException {
+        // Arrange
+        Connection mockedConnection = mock(Connection.class);
+        CallableStatement mockedCallableStatement = mock(CallableStatement.class);
+        ResultSet mockedResultSet = mock(ResultSet.class);
+
+        // Mock user input
+        String userInput = "john@example.com\npassword\n";
+        InputStream inputStream = new ByteArrayInputStream(userInput.getBytes());
+
+        when(mockedConnection.prepareCall(any())).thenReturn(mockedCallableStatement);
+        when(mockedCallableStatement.executeQuery()).thenReturn(mockedResultSet);
+        when(mockedResultSet.next()).thenReturn(true);
+        when(mockedResultSet.getInt("success")).thenReturn(1);
+
+        // Save the original System.in
+//        InputStream originalSystemIn = System.in;
+
+//        try {
+            // Set the custom InputStream
+//            System.setIn(inputStream);
+
+            UserDaoImpl userDao = new UserDaoImpl(mockedConnection, inputStream);
+
+            // Act
+            assertDoesNotThrow(() -> userDao.loginUser());
+
+            // Assert
+            verify(mockedCallableStatement).setString(eq(1), eq("john@example.com"));
+            verify(mockedCallableStatement).setString(eq(2), eq("password"));
+
+            verify(mockedCallableStatement).executeQuery();
+            inputStream.close();
+//        } finally {
+//            // Reset System.in after the test
+//            System.setIn(originalSystemIn);
+//            inputStream.close();
+//        }
     }
 
 
@@ -62,6 +114,7 @@ public class UserDaoImplTest {
         CallableStatement mockedCallableStatement = mock(CallableStatement.class);
 
         when(mockConnection.prepareCall(anyString())).thenReturn(mockedCallableStatement);
+        when(mockedCallableStatement.execute()).thenReturn(true);
         when(mockedCallableStatement.getInt(2)).thenReturn(1);
 
         UserDaoImpl userDao = new UserDaoImpl(mockConnection);
@@ -72,10 +125,10 @@ public class UserDaoImplTest {
 //        Assert
         assertTrue(result);
 
-//        Verify interaction
-        when(mockedCallableStatement.getString(1)).thenReturn("checkemail@gmail.com");
-        doNothing().when(mockedCallableStatement).registerOutParameter(2, Types.INTEGER);
-        when(mockedCallableStatement.execute()).thenReturn(true);
+//   // Verify interaction
+    verify(mockedCallableStatement).setString(eq(1), eq("checkemail@gmail.com"));
+    verify(mockedCallableStatement).registerOutParameter(eq(2), eq(Types.INTEGER));
+    verify(mockedCallableStatement).execute();
     }
 
 

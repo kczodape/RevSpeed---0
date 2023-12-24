@@ -5,6 +5,7 @@ import com.revspeed.dao.UserDao;
 import com.revspeed.db.DB;
 import com.revspeed.model.User;
 
+import java.io.InputStream;
 import java.sql.*;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -13,13 +14,20 @@ import java.util.regex.Pattern;
 public class UserDaoImpl implements UserDao {
 
      private Connection connection = DB.getConnection();
+    InputStream inputStream;
 
+    static Scanner sc = new Scanner(System.in);
+    Scanner scanner;
 
     public UserDaoImpl(Connection connection) throws SQLException {
         this.connection = connection;
     }
 
-    static Scanner sc = new Scanner(System.in);
+    public UserDaoImpl(Connection connection, InputStream inputStream) throws SQLException {
+        this.connection = connection;
+        this.scanner = new Scanner(inputStream);
+    }
+
 
     @Override
     public void registerUser(User user) throws SQLException{
@@ -60,82 +68,68 @@ public class UserDaoImpl implements UserDao {
 
 
         try (CallableStatement callableStatement = connection.prepareCall("{CALL insertUser(?, ?, ?, ?, ?)}")) {
-                callableStatement.setString(1, user.getName());
-                callableStatement.setLong(2, user.getPhoneNumber());
-                callableStatement.setString(3, user.getAddress());
-                callableStatement.setString(4, user.getEmailId());
-                callableStatement.setString(5, user.getPassword());
-                callableStatement.executeUpdate();
+            callableStatement.setString(1, user.getName());
+            callableStatement.setLong(2, user.getPhoneNumber());
+            callableStatement.setString(3, user.getAddress());
+            callableStatement.setString(4, user.getEmailId());
+            callableStatement.setString(5, user.getPassword());
+            callableStatement.executeUpdate();
+            System.out.println("Registration Successful !");
         }
-        System.out.println("Registration successfull. Please Login !");
-        loginUser();
     }
 
     @Override
     public void loginUser() throws SQLException {
-        String LOGIN_QUERY = "SELECT * FROM User WHERE email_id = ? AND password = ?";
+
+        String LOGIN_PROCEDURE = "{CALL loginUser(?, ?)}";
         boolean loginSuccessful = false;
 
         do {
             System.out.print("Enter your email: ");
-            String enteredEmail = sc.nextLine();
+            String enteredEmail = scanner.nextLine();
 
             System.out.print("Enter your password: ");
-            String enteredPassword = sc.nextLine();
+            String enteredPassword = scanner.nextLine();
 
-            try (PreparedStatement preparedStatement = connection.prepareStatement(LOGIN_QUERY)) {
-                preparedStatement.setString(1, enteredEmail);
-                preparedStatement.setString(2, enteredPassword);
+            try (CallableStatement callableStatement = connection.prepareCall(LOGIN_PROCEDURE)) {
+                callableStatement.setString(1, enteredEmail);
+                callableStatement.setString(2, enteredPassword);
 
-                try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    if (resultSet.next()) {
-                        int userId = resultSet.getInt("id");
-                        String name = resultSet.getString("name");
-                        Long phone_number = resultSet.getLong("phone_number");
-                        String email = resultSet.getString("email_id");
-                        String role = resultSet.getString("role");
-
-                        // Do something with the user information
+                    ResultSet resultSet = callableStatement.executeQuery();
+                    if (resultSet.next() && resultSet.getInt("success") == 1) {
+                        // Login successful
                         System.out.println("Login successful!");
-                        System.out.println("User ID: " + userId);
-                        System.out.println("Name: " + name);
-                        System.out.println("Phone number: " + phone_number);
-                        System.out.println("Email: " + email);
-                        System.out.println("Role: " + role);
-
                         loginSuccessful = true;
                     } else {
                         // No matching user found for the given email and password
-                        System.out.println("Invalid email or password. Please try again.");
+                        System.out.print("Invalid email or password. Please try again.");
                     }
                 }
-            } catch (SQLException e) {
-                e.printStackTrace(); // Log the exception or handle it as appropriate
-                System.out.println("An error occurred. Please try again.");
-            }
+            scanner.close(); // Close the scanner when done
+
         } while (!loginSuccessful);
     }
 
 
+
     public boolean isEmailExist(String email_id) throws SQLException{
-            CallableStatement callableStatement = connection.prepareCall("{CALL GetUserCountByEmail(?, ?)}");
-            callableStatement.setString(1, email_id);
-            callableStatement.registerOutParameter(2, Types.INTEGER);
-            callableStatement.execute();
+        CallableStatement callableStatement = connection.prepareCall("{CALL GetUserCountByEmail(?, ?)}");
+        callableStatement.setString(1, email_id);
+        callableStatement.registerOutParameter(2, Types.INTEGER);
+        callableStatement.execute();
 
-            int userCount = callableStatement.getInt(2);
+        int userCount = callableStatement.getInt(2);
 
-            if (userCount > 0) {
-                return true;
-            }
-
-            return false;
+        if (userCount > 0) {
+            return true;
         }
+        return false;
+    }
 
-        public boolean isEmailValid(String email_id){
-            final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-            final Pattern pattern = Pattern.compile(EMAIL_PATTERN);
-            Matcher matcher = pattern.matcher(email_id);
-            return matcher.matches();
-        }
+    public boolean isEmailValid(String email_id){
+        final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+        final Pattern pattern = Pattern.compile(EMAIL_PATTERN);
+        Matcher matcher = pattern.matcher(email_id);
+        return matcher.matches();
+    }
 }

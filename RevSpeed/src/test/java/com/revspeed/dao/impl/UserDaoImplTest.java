@@ -83,6 +83,9 @@ public class UserDaoImplTest {
 
         // Save the original System.in
 //        InputStream originalSystemIn = System.in;
+        // Create a ByteArrayOutputStream to capture the printed output
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
 
 //        try {
             // Set the custom InputStream
@@ -98,7 +101,10 @@ public class UserDaoImplTest {
             verify(mockedCallableStatement).setString(eq(2), eq("password"));
 
             verify(mockedCallableStatement).executeQuery();
-            inputStream.close();
+        assertFalse(outputStream.toString().contains("Invalid email or password. Please try again."),
+                "Unexpected a failure message for successful login. Actual output:\n" + outputStream.toString());
+
+        inputStream.close();
 //        } finally {
 //            // Reset System.in after the test
 //            System.setIn(originalSystemIn);

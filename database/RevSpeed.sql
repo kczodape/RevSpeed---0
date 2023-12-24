@@ -19,6 +19,111 @@ role VARCHAR(15) NOT NULL DEFAULT "user"
 INSERT INTO User (name, phone_number, address, email_id, password) VALUES ('Jhon', 9876543210, 'maxico', 'jhon1@gmail.com', '123456');
 select * from User;
 
+update user set password = '1234' where id = 1;
+delete from user where id in(25, 26, 29);
+
+DROP PROCEDURE insertUser;
+DELIMITER $$
+CREATE PROCEDURE insertUser(name VARCHAR(30), phone_number BIGINT(13), address VARCHAR (50), email_id VARCHAR(35), password VARCHAR(15))
+BEGIN
+	INSERT INTO User (name, phone_number, address, email_id, password) VALUES (name, phone_number, address, email_id, password);
+END $$
+DELIMITER ;
+CALL insertUser('RUPA', 7895632780, 'Wardha', 'rupa@gmail.com', '123456789');
+
+DELIMITER //
+CREATE PROCEDURE GetUserCountByEmail(IN emailParam VARCHAR(255), OUT userCount INT)
+BEGIN
+    SELECT COUNT(*) INTO userCount
+    FROM user
+    WHERE email_id = emailParam;
+END //
+DELIMITER ;
+CALL GetUserCountByEmail('krunal@gmail.com', @userCount);
+SELECT @userCount;
+
+
+
+DROP PROCEDURE loginUser;
+DELIMITER //
+
+CREATE PROCEDURE loginUser(
+    IN p_email VARCHAR(255),
+    IN p_password VARCHAR(255)
+)
+BEGIN
+    DECLARE userCount INT;
+
+    -- Check if the user with the provided email and password exists
+    SELECT COUNT(*) INTO userCount
+    FROM User
+    WHERE email_id = p_email AND password = p_password;
+
+    -- If a user is found, return user details; otherwise, return 0
+    IF userCount > 0 THEN
+        SELECT 
+            1 AS success,
+            id,
+            name,
+            phone_number,
+            address,
+            email_id,
+            password,
+            role
+        FROM User
+        WHERE email_id = p_email AND password = p_password;
+    ELSE
+        SELECT 0 AS success;
+    END IF;
+END //
+
+DROP PROCEDURE updateUserProfile;
+DELIMITER //
+CREATE PROCEDURE updateUserProfile(
+    IN p_user_id INT,
+    IN p_name VARCHAR(255),
+    IN p_phone_number BIGINT,
+    IN p_address VARCHAR(255),
+    IN p_email VARCHAR(255),
+    IN p_password VARCHAR(255)
+)
+BEGIN
+    UPDATE User
+    SET
+        name = IFNULL(p_name, name),
+        phone_number = IFNULL(p_phone_number, phone_number),
+        address = IFNULL(p_address, address),
+        email_id = IFNULL(p_email, email_id),
+        password = IFNULL(p_password, password)
+    WHERE id = p_user_id;
+END //
+
+DELIMITER ;
+
+
+-- CREATE PROCEDURE loginUser(
+--     IN p_email VARCHAR(255),
+--     IN p_password VARCHAR(255)
+-- )
+-- BEGIN
+--     DECLARE userCount INT;
+
+--     -- Check if the user with the provided email and password exists
+--     SELECT COUNT(*) INTO userCount
+--     FROM User
+--     WHERE email_id = p_email AND password = p_password;
+
+--     -- If a user is found, return 1; otherwise, return 0
+--     IF userCount > 0 THEN
+--         SELECT 1 AS success;
+--     ELSE
+--         SELECT 0 AS success;
+--     END IF;
+-- END //
+-- DELIMITER ;
+-- CALL loginUser('krunal@gmail.com', '123456');
+
+
 INSERT INTO User (id, name, phone_number, address, email_id, password, is_broadband) VALUES (1, 'Krunal Zodape', '1234567890', 'Nepal, India', 'krunal@gmail.com', 'RevSpeed01', TRUE), (3, 'Paresh Zodape', '1254789653', 'Gujrat, India', 'paresh@gmail.com', 'RevSpeed03', TRUE), (5, 'Jhon Sharma', '8532145986', 'Chennai, India', 'jhon@gmail.com', 'RevSpeed05', TRUE);
 
 INSERT INTO User (id, name, phone_number, address, email_id, password, is_dth) VALUES (2, 'Rupali Wadkar', '3265789423', 'Rajsthan, India', 'rupali@gmail.com', 'RevSpeed02', TRUE), (4, 'Aakash Solanke', '6598742326', 'Uttarpradesh, India', 'aakash@gmail.com', 'RevSpeed04', TRUE);
@@ -55,6 +160,7 @@ DROP TABLE Broadband_service_plans_details;
 CREATE TABLE Broadband_service_plans_details(
 br_sr_pl_dt_id INT PRIMARY KEY,
 br_sr_id INT,
+plan_name VARCHAR(50) UNIQUE,
 plan_name VARCHAR(50) UNIQUE,
 price DECIMAL(10, 2),
 FOREIGN KEY (br_sr_id) REFERENCES Broadband_service(br_sr_id)
@@ -271,25 +377,3 @@ JOIN
     ON BOM.ott_platform_id = OP.ott_platform_id
 WHERE USL.user_id = 1;
 
-
-DELIMITER $$
-CREATE FUNCTION CustomerFunction(
-	credit DECIMAL(10 ,2)
-)
-RETURNS VARCHAR(20)
-DETERMINISTIC
-BEGIN
-	DECLARE customerLevel VARCHAR(20);
-    
-    IF credit>50000 THEN
-		SET customerLevel = 'PLATINUM';
-	ELSEIF (credit >= 50000 AND credit <= 100000) THEN
-		SET customerLevel = 'GOLD';
-	ELSEiF credit < 50000 THEN
-		SET customerLevel = 'silver';
-	END IF;
-    RETURN (customerLevel);
-END $$
-DELIMITER ;
-
-SELECT customerName, CustomerFunction(creditLimit) FROM customers ORDER BY customerName;

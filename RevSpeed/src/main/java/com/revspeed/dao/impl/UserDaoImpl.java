@@ -1,6 +1,5 @@
 package com.revspeed.dao.impl;
 
-import com.revspeed.application.Main;
 import com.revspeed.dao.UserDao;
 import com.revspeed.db.DB;
 import com.revspeed.model.User;
@@ -11,13 +10,15 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.revspeed.utility.UserOperations;
+
 public class UserDaoImpl implements UserDao {
 
      private Connection connection = DB.getConnection();
     InputStream inputStream;
 
-    static Scanner sc = new Scanner(System.in);
-    Scanner scanner;
+    Scanner sc = new Scanner(System.in);
+
 
     public UserDaoImpl(Connection connection) throws SQLException {
         this.connection = connection;
@@ -25,7 +26,7 @@ public class UserDaoImpl implements UserDao {
 
     public UserDaoImpl(Connection connection, InputStream inputStream) throws SQLException {
         this.connection = connection;
-        this.scanner = new Scanner(inputStream);
+        this.sc = new Scanner(inputStream);
     }
 
 
@@ -86,10 +87,10 @@ public class UserDaoImpl implements UserDao {
 
         do {
             System.out.print("Enter your email: ");
-            String enteredEmail = scanner.nextLine();
+            String enteredEmail = sc.nextLine();
 
             System.out.print("Enter your password: ");
-            String enteredPassword = scanner.nextLine();
+            String enteredPassword = sc.nextLine();
 
             try (CallableStatement callableStatement = connection.prepareCall(LOGIN_PROCEDURE)) {
                 callableStatement.setString(1, enteredEmail);
@@ -99,17 +100,74 @@ public class UserDaoImpl implements UserDao {
                     if (resultSet.next() && resultSet.getInt("success") == 1) {
                         // Login successful
                         System.out.println("Login successful!");
+
+                        // Retrieve user details from the ResultSet
+                        int id = resultSet.getInt("id");
+                        String name = resultSet.getString("name");
+                        Long phoneNumber = resultSet.getLong("phone_number");
+                        String address = resultSet.getString("address");
+                        String email = resultSet.getString("email_id");
+                        String password = resultSet.getString("password");
+                        String role = resultSet.getString("role");
                         loginSuccessful = true;
+
+                        if (role != null) {
+                            userProfile(id, name, phoneNumber, address, email, password, role);
+                        } else {
+                            System.out.println("Role is null. Unable to create Profile.");
+                        }
+
                     } else {
                         // No matching user found for the given email and password
                         System.out.print("Invalid email or password. Please try again.");
                     }
                 }
-            scanner.close(); // Close the scanner when done
-
         } while (!loginSuccessful);
     }
 
+    @Override
+    public void userProfile(int id, String name, Long phoneNumber, String address, String email, String password, String role) throws SQLException {
+        UserOperations userOperations = new UserOperations(connection);
+        if (role.equals("user")){
+            int choise = 0;
+            do {
+                System.out.println("Press 1: See Profile\nPress 2: Update Profile\nPress 3: Reset Password\nPress 4: View Services of RevSpeed\nPress 5: See Broadband service plan\nPress 6: See DTH service plan\nPress 7: Show bills\nPress 8: Delete profile");
+                int check = sc.nextInt();
+
+                switch (check) {
+                    case 1:
+                        UserOperations.seeProfile(name, phoneNumber, address, email, password, role);
+                        break;
+                    case 2:
+                        userOperations.updateProfile(id);
+                        break;
+                    case 3:
+                        userOperations.resetPassword(id, password);
+                        break;
+                    case 4:
+                        System.out.println("See Services of RevSpeed");
+                        break;
+                    case 5:
+                        System.out.println("View Broadband service plan is in progress");
+                        break;
+                    case 6:
+                        System.out.println("See DTH service plan is in progress");
+                        break;
+                    case 7:
+                        System.out.println("Show bills is in progress");
+                        break;
+                    case 8:
+                        userOperations.deleteUser(id);
+                        break;
+                    default:
+                        System.out.println("please press valid key !");
+                }
+                System.out.println("Want to contineu Press: 1 Or Any key");
+                choise = sc.nextInt();
+            }while (choise==1);
+            System.setIn(System.in);
+        }
+    }
 
 
     public boolean isEmailExist(String email_id) throws SQLException{

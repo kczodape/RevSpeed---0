@@ -1,5 +1,6 @@
 package com.revspeed.dao.impl;
 
+import com.revspeed.dao.ServicesDao;
 import com.revspeed.dao.UserDao;
 import com.revspeed.db.DB;
 import com.revspeed.model.User;
@@ -10,6 +11,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.revspeed.services.ServicesService;
 import com.revspeed.utility.UserOperations;
 
 public class UserDaoImpl implements UserDao {
@@ -79,11 +81,14 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    static int id;
     @Override
     public void loginUser() throws SQLException {
 
         String LOGIN_PROCEDURE = "{CALL loginUser(?, ?)}";
         boolean loginSuccessful = false;
+
+        User user = new User();
 
         do {
             System.out.print("Enter your email: ");
@@ -102,7 +107,7 @@ public class UserDaoImpl implements UserDao {
                         System.out.println("Login successful!");
 
                         // Retrieve user details from the ResultSet
-                        int id = resultSet.getInt("id");
+                        id = resultSet.getInt("id");
                         String name = resultSet.getString("name");
                         Long phoneNumber = resultSet.getLong("phone_number");
                         String address = resultSet.getString("address");
@@ -110,6 +115,7 @@ public class UserDaoImpl implements UserDao {
                         String password = resultSet.getString("password");
                         String role = resultSet.getString("role");
                         loginSuccessful = true;
+
 
                         if (role != null) {
                             userProfile(id, name, phoneNumber, address, email, password, role);
@@ -128,10 +134,12 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void userProfile(int id, String name, Long phoneNumber, String address, String email, String password, String role) throws SQLException {
         UserOperations userOperations = new UserOperations(connection);
+        ServicesDao servicesDao = new ServicesDaoImpl();
+        ServicesService servicesService = new ServicesService(servicesDao);
         if (role.equals("user")){
             int choise = 0;
             do {
-                System.out.println("Press 1: See Profile\nPress 2: Update Profile\nPress 3: Reset Password\nPress 4: View Services of RevSpeed\nPress 5: See Broadband service plan\nPress 6: See DTH service plan\nPress 7: Show bills\nPress 8: Delete profile");
+                System.out.println("Press 1: See Profile\nPress 2: Update Profile\nPress 3: Reset Password\nPress 4: View Services of RevSpeed\nPress 5: Show bills\nPress 6: Show my OTT platforms\nPress 6: Delete profile");
                 int check = sc.nextInt();
 
                 switch (check) {
@@ -145,18 +153,15 @@ public class UserDaoImpl implements UserDao {
                         userOperations.resetPassword(id, password);
                         break;
                     case 4:
-                        System.out.println("See Services of RevSpeed");
+                        servicesService.seeServices();
                         break;
                     case 5:
-                        System.out.println("View Broadband service plan is in progress");
+                        servicesService.seeMyBill(id);
                         break;
                     case 6:
-                        System.out.println("See DTH service plan is in progress");
+                        servicesService.getUsersOTTPlatforms(id);
                         break;
                     case 7:
-                        System.out.println("Show bills is in progress");
-                        break;
-                    case 8:
                         userOperations.deleteUser(id);
                         break;
                     default:
@@ -190,4 +195,6 @@ public class UserDaoImpl implements UserDao {
         Matcher matcher = pattern.matcher(email_id);
         return matcher.matches();
     }
+
+
 }

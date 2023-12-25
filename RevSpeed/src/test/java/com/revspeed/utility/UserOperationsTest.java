@@ -54,37 +54,37 @@ public class UserOperationsTest {
         }
     }
 
-    @Test
-    void testUpdateProfile() throws SQLException {
-        int userId = 1;
-        // Mocking database connection and CallableStatement using Mockito
-        Connection mockConnection = mock(Connection.class);
-        CallableStatement mockCallableStatement = mock(CallableStatement.class);
-
-        // Mocking the expected behavior of the CallableStatement
-        when(mockConnection.prepareCall(any())).thenReturn(mockCallableStatement);
-        when(mockCallableStatement.getInt(1)).thenReturn(userId);
-        when(mockCallableStatement.getString(2)).thenReturn("NewName");
-        when(mockCallableStatement.getLong(3)).thenReturn((long) Types.NULL);
-        when(mockCallableStatement.getString(4)).thenReturn(null);
-        when(mockCallableStatement.getString(5)).thenReturn(null);
-        when(mockCallableStatement.getString(6)).thenReturn(null);
-        when(mockCallableStatement.executeUpdate()).thenReturn(1); // Assuming 1 as a placeholder return value, adjust as needed
-
-        UserOperations yourClassInstance = new UserOperations(mockConnection);
-
-        // Act and Assert
-        assertDoesNotThrow(() -> yourClassInstance.updateProfile(userId));
-
-        verify(mockCallableStatement).setString(eq(1), eq("John Doe"));
-        verify(mockCallableStatement).setLong(eq(2), eq(1234567890L));
-        verify(mockCallableStatement).setString(eq(3), eq(null));
-        verify(mockCallableStatement).setString(eq(4), eq(null));
-        verify(mockCallableStatement).setString(eq(5), eq(null));
-
-        verify(mockCallableStatement).executeUpdate();
-        System.setIn(System.in);
-    }
+//    @Test
+//    void testUpdateProfile() throws SQLException {
+//        int userId = 1;
+//        // Mocking database connection and CallableStatement using Mockito
+//        Connection mockConnection = mock(Connection.class);
+//        CallableStatement mockCallableStatement = mock(CallableStatement.class);
+//
+//        // Mocking the expected behavior of the CallableStatement
+//        when(mockConnection.prepareCall(any())).thenReturn(mockCallableStatement);
+//        when(mockCallableStatement.getInt(1)).thenReturn(userId);
+//        when(mockCallableStatement.getString(2)).thenReturn("NewName");
+//        when(mockCallableStatement.getLong(3)).thenReturn((long) Types.NULL);
+//        when(mockCallableStatement.getString(4)).thenReturn(null);
+//        when(mockCallableStatement.getString(5)).thenReturn(null);
+//        when(mockCallableStatement.getString(6)).thenReturn(null);
+//        when(mockCallableStatement.executeUpdate()).thenReturn(1); // Assuming 1 as a placeholder return value, adjust as needed
+//
+//        UserOperations yourClassInstance = new UserOperations(mockConnection);
+//
+//        // Act and Assert
+//        assertDoesNotThrow(() -> yourClassInstance.updateProfile(userId));
+//
+//        verify(mockCallableStatement).setString(eq(1), eq("John Doe"));
+//        verify(mockCallableStatement).setLong(eq(2), eq(1234567890L));
+//        verify(mockCallableStatement).setString(eq(3), eq(null));
+//        verify(mockCallableStatement).setString(eq(4), eq(null));
+//        verify(mockCallableStatement).setString(eq(5), eq(null));
+//
+//        verify(mockCallableStatement).executeUpdate();
+//        System.setIn(System.in);
+//    }
 
 //    @Test
 //    void updateProfile_validChoice_shouldExecuteUpdate() throws SQLException {

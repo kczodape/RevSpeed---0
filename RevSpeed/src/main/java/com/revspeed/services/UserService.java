@@ -21,7 +21,5 @@ public class UserService {
         userDao.loginUser();
     }
 
-    public void userProfile(int id, String name, Long phoneNumber, String address, String email, String password, String role) throws SQLException{
-        userDao.userProfile(id, name, phoneNumber, address, email, password, role);
-    }
+
 }

@@ -1,0 +1,299 @@
+package com.revspeed.dao.impl;
+
+import com.revspeed.dao.ServicesDao;
+import com.revspeed.db.DB;
+import com.revspeed.model.User;
+
+import java.lang.ref.PhantomReference;
+import java.sql.*;
+import java.time.LocalDate;
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+
+public class ServicesDaoImpl implements ServicesDao {
+    Connection connection = DB.getConnection();
+    Scanner sc = new Scanner(System.in);
+    int userId = UserDaoImpl.id;
+    public ServicesDaoImpl() throws SQLException {
+    }
+
+    @Override
+    public void seeServices() throws SQLException {
+        String seeServicesQuerry = "SELECT * FROM services";
+        PreparedStatement preparedStatement = connection.prepareStatement(seeServicesQuerry);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()){
+            int id = resultSet.getInt(1);
+            String serviceName = resultSet.getString(2);
+            System.out.println("Press "+id+": See "+serviceName);
+        }
+
+         int choice = sc.nextInt();
+
+            switch (choice){
+                case 1:
+                    seeBroadbandService();
+                    break;
+                case 2:
+                    seeDthService();
+                    break;
+                default:
+                    System.out.println("Press valid key !");
+            }
+    }
+
+    @Override
+    public void seeBroadbandService() throws SQLException {
+        String seeBroadband_serviceQuerry = "SELECT * FROM Broadband_service";
+        PreparedStatement preparedStatement = connection.prepareStatement(seeBroadband_serviceQuerry);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()){
+            int id = resultSet.getInt(1);
+            String serviceName = resultSet.getString(3);
+            System.out.println("Press "+id+": See "+serviceName+" plan");
+        }
+
+        int choice = sc.nextInt();
+        switch (choice){
+            case 1:
+                seeBroadbandServiceBasedOnPlan(choice, userId);
+                break;
+            case 2:
+                seeBroadbandServiceBasedOnPlan(choice, userId);
+                break;
+            case 3:
+                seeBroadbandServiceBasedOnPlan(choice, userId);
+                break;
+            default:
+                System.out.println("please press valid key !");
+            }
+    }
+
+    @Override
+    public void seeBroadbandServiceBasedOnPlan(int id, int userId) throws SQLException {
+        String seeBroadbandServiceBasedOnPlan = "SELECT * FROM Broadband_service_plans_details WHERE br_sr_id = ?";
+        PreparedStatement preparedStatement = connection.prepareStatement(seeBroadbandServiceBasedOnPlan);
+        preparedStatement.setInt(1, id);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()){
+            int brodbandServiceId = resultSet.getInt("br_sr_pl_dt_id");
+            String broadbandPlanName = resultSet.getString("plan_name");
+            double price = resultSet.getDouble("price");
+
+            System.out.println("Plan ID: "+brodbandServiceId+" "+broadbandPlanName+"  ===>  "+price);
+        }
+
+        System.out.println("You will get those OTT platform/platforms for choosen subscription");
+
+        CallableStatement callableStatement = connection.prepareCall("{CALL GetPlatformNameByBrSrId(?)}");
+        callableStatement.setInt(1, id);
+        ResultSet callableResultSet = callableStatement.executeQuery();
+        while (callableResultSet.next()){
+            String platformName = callableResultSet.getString("platform_name");
+            System.out.println(platformName);
+        }
+
+        System.out.println("Choose the plan ID to purchace: ");
+        int selectedPlanId = sc.nextInt();
+
+        Date purchaseDate = new Date(System.currentTimeMillis());
+        int subscriptionDays = 0;
+
+        switch (selectedPlanId) {
+            case 1:
+            case 2:
+            case 3:
+                subscriptionDays = 28;
+                break;
+            case 4:
+            case 5:
+            case 6:
+                subscriptionDays = 84;
+                break;
+            case 7:
+            case 8:
+            case 9:
+                subscriptionDays = 360;
+                break;
+            default:
+                System.out.println("Invalid plan selected.");
+        }
+
+        // Calculate end date
+        long endDateMillis = purchaseDate.getTime() + TimeUnit.DAYS.toMillis(subscriptionDays);
+        Date endDate = new Date(endDateMillis);
+
+        // Insert the purchased plan into User_Service_Link
+        String insertUserSubscription = "INSERT INTO User_Service_Link (user_id, br_sr_dt_id, subscription_start_date, subscription_end_date) VALUES (?, ?, ?, ?)";
+        PreparedStatement insertSubscriptionStatement = connection.prepareStatement(insertUserSubscription);
+        insertSubscriptionStatement.setInt(1, userId);
+        insertSubscriptionStatement.setInt(2, selectedPlanId);
+        insertSubscriptionStatement.setDate(3, purchaseDate);
+        insertSubscriptionStatement.setDate(4, endDate);
+
+        // Execute the insert statement
+        insertSubscriptionStatement.executeUpdate();
+
+        System.out.println("Subscription purchased successfully!");
+
+    }
+
+    @Override
+    public void getUsersOTTPlatforms(int id) throws SQLException {
+        CallableStatement callableStatement = connection.prepareCall("{CALL GetOTTPlatformsForUser(?)}");
+        callableStatement.setInt(1, id);
+        ResultSet resultSet = callableStatement.executeQuery();
+
+        while (resultSet.next()){
+            String platformName = resultSet.getString("platform_name");
+            System.out.println("OTT platform name: "+platformName);
+        }
+    }
+
+    @Override
+    public void seeDthService() throws SQLException {
+        CallableStatement callableStatement = connection.prepareCall("{CALL GetLanguageOptions()}");
+        ResultSet resultSet = callableStatement.executeQuery();
+        while (resultSet.next()){
+            int languageId = resultSet.getInt(1);
+            String language = resultSet.getString(2);
+            System.out.println("Press "+languageId+": Chosse "+language+" language chanels");
+        }
+        int check = sc.nextInt();
+        switch (check){
+            case 1:
+                getPlansForLanguage("Hindi");
+                break;
+            case 2:
+                getPlansForLanguage("Tamil");
+                break;
+            default:
+                System.out.println("Please press valid key");
+        }
+    }
+
+    @Override
+    public void getPlansForLanguage(String language) throws SQLException {
+        CallableStatement callableStatement = connection.prepareCall("{CALL GetPlansForLanguage(?)}");
+        callableStatement.setString(1, language);
+        ResultSet resultSet = callableStatement.executeQuery();
+        while (resultSet.next()){
+            int planId = resultSet.getInt(1);
+            String planName = resultSet.getString(2);
+            System.out.println("Press "+planId+": Buy "+language+" "+planName+" plan");
+        }
+        int check = sc.nextInt();
+        switch (check){
+            case 1:
+                getPlansForCategory(check);
+                break;
+            case 2:
+                getPlansForCategory(check);
+                break;
+            case 3:
+                getPlansForCategory(check);
+                break;
+            case 4:
+                getPlansForCategory(check);
+                break;
+            case 5:
+                getPlansForCategory(check);
+                break;
+            case 6:
+                getPlansForCategory(check);
+                break;
+            default:
+                System.out.println("Please press valid key");
+        }
+    }
+
+    @Override
+    public void getPlansForCategory(int planId) throws SQLException {
+
+        String insertUserLinkQuerry = "INSERT INTO User_Service_Link (user_id, dth_service_plan_id, subscription_start_date, subscription_end_date) VALUES (?, ?, ?, ?)";
+        PreparedStatement insertUserLinkStatement = connection.prepareStatement(insertUserLinkQuerry);
+
+        // Assuming you have user_id
+        insertUserLinkStatement.setInt(1, userId);  // Replace userId with the actual user_id
+
+        // Get current date as start date
+        LocalDate startDate = LocalDate.now();
+        insertUserLinkStatement.setInt(2, planId);
+        insertUserLinkStatement.setDate(3, java.sql.Date.valueOf(startDate));  // Convert LocalDate to java.sql.Date
+
+        // Calculate end date as 28 days later
+        LocalDate endDate = startDate.plusDays(28);
+        insertUserLinkStatement.setDate(4, java.sql.Date.valueOf(endDate));  // Convert LocalDate to java.sql.Date
+
+        // Execute the insert statement
+        int rowsAffected = insertUserLinkStatement.executeUpdate();
+
+        if (rowsAffected > 0) {
+            System.out.println("DTH Plan successfully added to User_Service_Link");
+        } else {
+            System.out.println("Failed to add DTH Plan to User_Service_Link");
+        }
+
+        System.out.println("You got this plan");
+        String getPlanForCategoryQuerry = "SELECT dth_chnl_dt_id, channel_name, price FROM DTH_channel_details WHERE dth_sr_pl_dt_id = ?";
+        PreparedStatement preparedStatement = connection.prepareStatement(getPlanForCategoryQuerry);
+        preparedStatement.setInt(1, planId);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()){
+            int dthChnlId = resultSet.getInt(1);
+            String channelName = resultSet.getString(2);
+            double price = resultSet.getDouble(3);
+            System.out.println("Channel name: "+channelName+" Price: "+price);
+        }
+    }
+
+    @Override
+    public void seeMyBill(int id) throws SQLException{
+        System.out.println("Press 1: See BroadBand bill\nPress 2: See DTH bill");
+        int check = sc.nextInt();
+        switch (check){
+            case 1:
+                broadbandServiceBillDetails(id);
+                break;
+            case 2:
+                dthServiceBillDetails(id);
+                break;
+            default:
+                System.out.println("please press valid key");
+        }
+    }
+
+    public void broadbandServiceBillDetails(int id) throws SQLException{
+        CallableStatement callableStatement = connection.prepareCall("{CALL GetUserBroadbandDetails(?)}");
+        callableStatement.setInt(1, id);
+        ResultSet resultSet = callableStatement.executeQuery();
+        while (resultSet.next()){
+            String subscribedPlan = resultSet.getString("subscription_plan");
+            Date startDate = resultSet.getDate("subscription_start_date");
+            Date endDate = resultSet.getDate("subscription_end_date");
+            double price = resultSet.getDouble("total_purchased_price");
+            System.out.println();
+            System.out.println(subscribedPlan+" "+startDate+" "+endDate+" "+price);
+        }
+    }
+
+    public void dthServiceBillDetails(int id) throws SQLException{
+        CallableStatement callableStatement = connection.prepareCall("{CALL GetUserDTHDetailsByID(?)}");
+        callableStatement.setInt(1, id);
+        ResultSet resultSet = callableStatement.executeQuery();
+        System.out.println("plan Name\tChannel Name\t\t\tSubscription date\t\tSubscription end date\tprice");
+        System.out.println();
+        while (resultSet.next()){
+            String planName = resultSet.getString("plan_name");
+            String channelName = resultSet.getString("channel_name");
+            Date startDate = resultSet.getDate("subscription_start_date");
+            Date endDate = resultSet.getDate("subscription_end_date");
+            double channerPrice = resultSet.getDouble("channel_price");
+            System.out.println(planName+"\t\t"+channelName+"\t"+startDate+"\t\t\t\t"+endDate+"\t\t\t\t"+channerPrice);
+        }
+    }
+
+}

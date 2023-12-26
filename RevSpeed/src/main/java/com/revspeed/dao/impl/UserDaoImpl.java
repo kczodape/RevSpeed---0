@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.revspeed.services.ServicesService;
+import com.revspeed.utility.GEmailSender;
 import com.revspeed.utility.UserOperations;
 
 public class UserDaoImpl implements UserDao {
@@ -103,6 +104,9 @@ public class UserDaoImpl implements UserDao {
             System.out.println("+-------------------------+");
             System.out.println("|  Registration Successful |");
             System.out.println("+-------------------------+");
+            GEmailSender gEmailSender = new GEmailSender();
+
+            gEmailSender.sendRegistrationEmail(user.getEmailId());
         }
     }
 

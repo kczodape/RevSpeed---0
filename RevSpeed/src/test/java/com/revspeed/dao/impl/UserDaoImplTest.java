@@ -81,15 +81,8 @@ public class UserDaoImplTest {
         when(mockedResultSet.next()).thenReturn(true);
         when(mockedResultSet.getInt("success")).thenReturn(1);
 
-        // Save the original System.in
-//        InputStream originalSystemIn = System.in;
-        // Create a ByteArrayOutputStream to capture the printed output
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
-
-//        try {
-            // Set the custom InputStream
-//            System.setIn(inputStream);
 
             UserDaoImpl userDao = new UserDaoImpl(mockedConnection, inputStream);
 
@@ -105,11 +98,6 @@ public class UserDaoImplTest {
                 "Unexpected a failure message for successful login. Actual output:\n" + outputStream.toString());
 
         inputStream.close();
-//        } finally {
-//            // Reset System.in after the test
-//            System.setIn(originalSystemIn);
-//            inputStream.close();
-//        }
     }
 
 
@@ -120,6 +108,7 @@ public class UserDaoImplTest {
         CallableStatement mockedCallableStatement = mock(CallableStatement.class);
 
         when(mockConnection.prepareCall(anyString())).thenReturn(mockedCallableStatement);
+
         when(mockedCallableStatement.execute()).thenReturn(true);
         when(mockedCallableStatement.getInt(2)).thenReturn(1);
 

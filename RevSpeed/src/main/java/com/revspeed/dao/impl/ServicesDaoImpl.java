@@ -19,6 +19,9 @@ public class ServicesDaoImpl implements ServicesDao {
 
     @Override
     public void seeServices() throws SQLException {
+        System.out.println("+------------------------------------------+");
+        System.out.println("|          RevSpeed Offering Services      |");
+        System.out.println("+------------------------------------------+");
         String seeServicesQuerry = "SELECT * FROM services";
         PreparedStatement preparedStatement = connection.prepareStatement(seeServicesQuerry);
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -26,10 +29,13 @@ public class ServicesDaoImpl implements ServicesDao {
         while (resultSet.next()){
             int id = resultSet.getInt(1);
             String serviceName = resultSet.getString(2);
-            System.out.println("Press "+id+": See "+serviceName);
-        }
 
-         int choice = sc.nextInt();
+            System.out.printf("| Press %d: See %-27s |\n", id, serviceName);
+        }
+        System.out.println("+------------------------------------------+");
+        System.out.print("* Enter your choice: ");
+
+        int choice = sc.nextInt();
 
             switch (choice){
                 case 1:
@@ -41,6 +47,7 @@ public class ServicesDaoImpl implements ServicesDao {
                 default:
                     System.out.println("Press valid key !");
             }
+        System.out.println();
     }
 
     @Override
@@ -48,12 +55,14 @@ public class ServicesDaoImpl implements ServicesDao {
         String seeBroadband_serviceQuerry = "SELECT * FROM Broadband_service";
         PreparedStatement preparedStatement = connection.prepareStatement(seeBroadband_serviceQuerry);
         ResultSet resultSet = preparedStatement.executeQuery();
+        System.out.println("+---------------------------------+");
         while (resultSet.next()){
             int id = resultSet.getInt(1);
             String serviceName = resultSet.getString(3);
-            System.out.println("Press "+id+": See "+serviceName+" plan");
+            System.out.printf("| Press %d: See %-10s plan    |\n", id, serviceName);
         }
-
+        System.out.println("+---------------------------------+");
+        System.out.print("* Enter your choice: ");
         int choice = sc.nextInt();
         switch (choice){
             case 1:
@@ -77,25 +86,35 @@ public class ServicesDaoImpl implements ServicesDao {
         preparedStatement.setInt(1, id);
         ResultSet resultSet = preparedStatement.executeQuery();
 
+        System.out.println("+----------------------------------------------------------------------------------------+");
+        System.out.printf("| %-10s | %-60s | %-25s |\n", "Plan ID", "Plan Name", "Price");
+        System.out.println("+----------------------------------------------------------------------------------------+");
+
         while (resultSet.next()){
             int brodbandServiceId = resultSet.getInt("br_sr_pl_dt_id");
             String broadbandPlanName = resultSet.getString("plan_name");
             double price = resultSet.getDouble("price");
 
-            System.out.println("Plan ID: "+brodbandServiceId+" "+broadbandPlanName+"  ===>  "+price);
+            System.out.printf("| %-10s | %-60s | %-10s |\n", brodbandServiceId, broadbandPlanName, price);
         }
+        System.out.println("+----------------------------------------------------------------------------------------+");
 
-        System.out.println("You will get those OTT platform/platforms for choosen subscription");
+
+
 
         CallableStatement callableStatement = connection.prepareCall("{CALL GetPlatformNameByBrSrId(?)}");
         callableStatement.setInt(1, id);
         ResultSet callableResultSet = callableStatement.executeQuery();
+        System.out.println("+-------------------------------------------------------------------+");
+        System.out.printf("| %-60s |\n", "You will get those OTT platform/platforms for chosen subscription");
+        System.out.println("|                                                                   |");
         while (callableResultSet.next()){
             String platformName = callableResultSet.getString("platform_name");
-            System.out.println(platformName);
+            System.out.printf("| %-65s |\n", platformName);
         }
+        System.out.println("+-------------------------------------------------------------------+");
 
-        System.out.println("Choose the plan ID to purchace: ");
+        System.out.print("* Choose the plan ID to purchace: ");
         int selectedPlanId = sc.nextInt();
 
         Date purchaseDate = new Date(System.currentTimeMillis());
@@ -135,8 +154,10 @@ public class ServicesDaoImpl implements ServicesDao {
 
         // Execute the insert statement
         insertSubscriptionStatement.executeUpdate();
+        System.out.println("+------------------------------------------+");
+        System.out.println("|   Subscription purchased successfully!   |");
+        System.out.println("+------------------------------------------+");
 
-        System.out.println("Subscription purchased successfully!");
 
     }
 
@@ -146,21 +167,32 @@ public class ServicesDaoImpl implements ServicesDao {
         callableStatement.setInt(1, id);
         ResultSet resultSet = callableStatement.executeQuery();
 
-        while (resultSet.next()){
+        System.out.println("+-------------------------+");
+        System.out.printf("| %-22s |\n", "OTT Platforms");
+        System.out.println("+-------------------------+");
+
+        while (resultSet.next()) {
             String platformName = resultSet.getString("platform_name");
-            System.out.println("OTT platform name: "+platformName);
+            System.out.printf("| %-22s |\n", platformName);
         }
+
+        System.out.println("+-------------------------+");
+
     }
 
     @Override
     public void seeDthService() throws SQLException {
         CallableStatement callableStatement = connection.prepareCall("{CALL GetLanguageOptions()}");
         ResultSet resultSet = callableStatement.executeQuery();
+        System.out.println("+-------------------------------------------+");
         while (resultSet.next()){
             int languageId = resultSet.getInt(1);
             String language = resultSet.getString(2);
-            System.out.println("Press "+languageId+": Chosse "+language+" language chanels");
+            System.out.printf("| Press %-2d : Choose %-5s language channels |\n", languageId, language);
+
         }
+        System.out.println("+-------------------------------------------+");
+        System.out.print("* Enter your choice: ");
         int check = sc.nextInt();
         switch (check){
             case 1:
@@ -179,11 +211,16 @@ public class ServicesDaoImpl implements ServicesDao {
         CallableStatement callableStatement = connection.prepareCall("{CALL GetPlansForLanguage(?)}");
         callableStatement.setString(1, language);
         ResultSet resultSet = callableStatement.executeQuery();
+        System.out.println("+------------------------------------------+");
+        System.out.printf("| %-10s | %-27s |\n", "Press", "Buy");
+        System.out.println("+------------------------------------------+");
         while (resultSet.next()){
             int planId = resultSet.getInt(1);
             String planName = resultSet.getString(2);
-            System.out.println("Press "+planId+": Buy "+language+" "+planName+" plan");
+            System.out.printf("| Press %-3s | Buy %-24s |\n", planId, planName, "plan");
         }
+        System.out.println("+------------------------------------------+");
+
         int check = sc.nextInt();
         switch (check){
             case 1:
@@ -231,9 +268,9 @@ public class ServicesDaoImpl implements ServicesDao {
         int rowsAffected = insertUserLinkStatement.executeUpdate();
 
         if (rowsAffected > 0) {
-            System.out.println("DTH Plan successfully added to User_Service_Link");
+            System.out.println("DTH Plan purchased successfully");
         } else {
-            System.out.println("Failed to add DTH Plan to User_Service_Link");
+            System.out.println("Failed to purchase DTH Plan");
         }
 
         System.out.println("You got this plan");
@@ -241,13 +278,19 @@ public class ServicesDaoImpl implements ServicesDao {
         PreparedStatement preparedStatement = connection.prepareStatement(getPlanForCategoryQuerry);
         preparedStatement.setInt(1, planId);
         ResultSet resultSet = preparedStatement.executeQuery();
+        System.out.println("+----------------------------------------+");
+        System.out.printf("| %-29s | %-6s |\n", "Channel name", "Price");
+        System.out.println("+----------------------------------------+");
 
         while (resultSet.next()){
             int dthChnlId = resultSet.getInt(1);
             String channelName = resultSet.getString(2);
             double price = resultSet.getDouble(3);
-            System.out.println("Channel name: "+channelName+" Price: "+price);
+            System.out.printf("| %-20s | %-6.2f |\n", channelName, price);
+//            System.out.println("Channel name: "+channelName+" Price: "+price);
         }
+        System.out.println("+----------------------------------------+");
+
     }
 
     @Override
@@ -270,13 +313,18 @@ public class ServicesDaoImpl implements ServicesDao {
         CallableStatement callableStatement = connection.prepareCall("{CALL GetUserBroadbandDetails(?)}");
         callableStatement.setInt(1, id);
         ResultSet resultSet = callableStatement.executeQuery();
+        System.out.println("+-------------------------------------------------------------------------------------------------------------------------------------------+");
+        System.out.printf("| %-48s | %-30s | %-30s | %-20s |%n", "Subscribed Plan", "Start Date", "End Date", "Price");
+        System.out.println("+-------------------------------------------------------------------------------------------------------------------------------------------+");
+
         while (resultSet.next()){
             String subscribedPlan = resultSet.getString("subscription_plan");
             Date startDate = resultSet.getDate("subscription_start_date");
             Date endDate = resultSet.getDate("subscription_end_date");
             double price = resultSet.getDouble("total_purchased_price");
-            System.out.println();
-            System.out.println(subscribedPlan+" "+startDate+" "+endDate+" "+price);
+//            System.out.print(subscribedPlan+" "+startDate+" "+endDate+" "+price);
+            System.out.printf("| %-48s | %-30s | %-30s | %-20.2f |%n", subscribedPlan, startDate, endDate, price);
+            System.out.println("+-------------------------------------------------------------------------------------------------------------------------------------------+");
         }
     }
 
@@ -284,16 +332,18 @@ public class ServicesDaoImpl implements ServicesDao {
         CallableStatement callableStatement = connection.prepareCall("{CALL GetUserDTHDetailsByID(?)}");
         callableStatement.setInt(1, id);
         ResultSet resultSet = callableStatement.executeQuery();
-        System.out.println("plan Name\tChannel Name\t\t\tSubscription date\t\tSubscription end date\tprice");
-        System.out.println();
-        while (resultSet.next()){
+        System.out.println("+-------------------------------------------------------------------------------------------------------------------------------+");
+        System.out.printf("| %-20s | %-40s | %-20s | %-20s | %-9s |%n", "Plan Name", "Channel Name", "Subscription Start Date", "Subscription End Date", "Price");
+        System.out.println("+-------------------------------------------------------------------------------------------------------------------------------+");
+        while (resultSet.next()) {
             String planName = resultSet.getString("plan_name");
             String channelName = resultSet.getString("channel_name");
             Date startDate = resultSet.getDate("subscription_start_date");
             Date endDate = resultSet.getDate("subscription_end_date");
-            double channerPrice = resultSet.getDouble("channel_price");
-            System.out.println(planName+"\t\t"+channelName+"\t"+startDate+"\t\t\t\t"+endDate+"\t\t\t\t"+channerPrice);
-        }
+            double channelPrice = resultSet.getDouble("channel_price");
+
+            System.out.printf("| %-20s | %-40s | %-23s | %-20s | %-10.2f |%n", planName, channelName, startDate, endDate, channelPrice);
+            System.out.println("+-------------------------------------------------------------------------------------------------------------------------------+");        }
     }
 
 }

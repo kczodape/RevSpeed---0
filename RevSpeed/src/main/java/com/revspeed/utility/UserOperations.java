@@ -24,18 +24,32 @@ public class UserOperations {
     }
 
     public static void seeProfile(String name, Long phoneNumber, String address, String email, String password, String role){
-        System.out.println("Name: "+name+"\nPhone number: "+phoneNumber+"\nAddress: "+address+"\nEmail: "+email);
-    }
+        System.out.println("+-------------------------------------------+");
+        System.out.printf("| %-20s %-20s |\n", "Name:", name);
+        System.out.println("+-------------------------------------------+");
+        System.out.printf("| %-20s %-20s |\n", "Phone number:", phoneNumber);
+        System.out.println("+-------------------------------------------+");
+        System.out.printf("| %-20s %-20s |\n", "Address:", address);
+        System.out.println("+-------------------------------------------+");
+        System.out.printf("| %-20s %-20s |\n", "Email:", email);
+        System.out.println("+-------------------------------------------+");    }
 
     public void updateProfile(int userId) throws SQLException {
-        System.out.println("Select fields to update:");
-        System.out.println("1. Name");
-        System.out.println("2. Phone Number");
-        System.out.println("3. Address");
-        System.out.println("4. Email");
-        System.out.println("5. Password");
-        System.out.println("6. Update All");
 
+        System.out.println("+--------------------------------------------------+");
+        System.out.println("|          User Data Update Menu                    |");
+        System.out.println("+--------------------------------------------------+");
+        System.out.println("| Enter the field No. which you want to update:    |");
+        System.out.println("|                                                  |");
+        System.out.println("| 1. Name                                          |");
+        System.out.println("| 2. Phone Number                                  |");
+        System.out.println("| 3. Address                                       |");
+        System.out.println("| 4. Email                                         |");
+        System.out.println("| 5. Password                                      |");
+        System.out.println("| 6. Update All                                    |");
+        System.out.println("+--------------------------------------------------+");
+
+        System.out.print("* Enter your choice: ");
         int choice = sc.nextInt();
         sc.nextLine();  // Consume the newline character
 
@@ -45,57 +59,67 @@ public class UserOperations {
         String email = null;
         String password = null;
 
+        System.out.println("+-------------------------------------------------+");
         switch (choice) {
             case 1:
-                System.out.print("Enter new name: ");
+                System.out.println("| Option 1: Update Name                           |");
+                System.out.print("| Enter new name: ");
                 name = sc.nextLine();
                 break;
             case 2:
-                System.out.print("Enter new phone number: ");
+                System.out.println("| Option 2: Update Phone Number                   |");
+                System.out.print("| Enter new phone number: ");
                 if (sc.hasNextLong()) {
                     phoneNumber = sc.nextLong();
                     sc.nextLine(); // Consume the newline character
                 } else {
-                    System.out.println("Invalid input. Phone number not updated.");
+                    System.out.println("| Invalid input. Phone number not updated.       |");
+                    System.out.println("+-------------------------------------------------+");
                     return;
                 }
                 break;
             case 3:
-                System.out.print("Enter new address: ");
+                System.out.println("| Option 3: Update Address                        |");
+                System.out.print("| Enter new address: ");
                 address = sc.nextLine();
                 break;
             case 4:
-                System.out.print("Enter new email: ");
+                System.out.println("| Option 4: Update Email                          |");
+                System.out.print("| Enter new email: ");
                 email = sc.nextLine();
                 break;
             case 5:
-                System.out.print("Enter new password: ");
+                System.out.println("| Option 5: Update Password                       |");
+                System.out.print("| Enter new password: ");
                 password = sc.nextLine();
                 break;
             case 6:
-                System.out.print("Enter new name: ");
+                System.out.println("| Option 6: Update All                            |");
+                System.out.print("| Enter new name: ");
                 name = sc.nextLine();
 
-                System.out.print("Enter new phone number: ");
+                System.out.print("| Enter new phone number: ");
                 if (sc.hasNextLong()) {
                     phoneNumber = sc.nextLong();
                     sc.nextLine(); // Consume the newline character
                 } else {
-                    System.out.println("Invalid input. Phone number not updated.");
+                    System.out.println("| Invalid input. Phone number not updated.       |");
+                    System.out.println("+-------------------------------------------------+");
                     return;
                 }
 
-                System.out.print("Enter new address: ");
+                System.out.print("| Enter new address: ");
                 address = sc.nextLine();
 
-                System.out.print("Enter new email: ");
+                System.out.print("| Enter new email: ");
                 email = sc.nextLine();
 
-                System.out.print("Enter new password: ");
+                System.out.print("| Enter new password: ");
                 password = sc.nextLine();
                 break;
             default:
-                System.out.println("Invalid choice");
+                System.out.println("| Invalid choice                                 |");
+                System.out.println("+-------------------------------------------------+");
                 return;
         }
 
@@ -115,33 +139,40 @@ public class UserOperations {
             callableStatement.setString(6, password);
 
             callableStatement.executeUpdate();
-            System.out.println("Profile updated successfully!");
-        }
+
+            System.out.println("+------------------------------------+");
+            System.out.println("|   Profile updated successfully!   |");
+            System.out.println("+------------------------------------+");        }
     }
 
     public void resetPassword(int userId, String password) throws SQLException {
+        boolean match = false;
+        do {
+            System.out.print("+----------------------------------------+\n");
+            System.out.printf("| Please enter Old Password: ");
+            String oldPassword = sc.nextLine();
+            System.out.printf("| Please enter new password: ");
+            String newPassword = sc.nextLine();
+            System.out.print("+----------------------------------------+\n");
 
-        System.out.print("Please enter Old Password: ");
-        sc.nextLine();
-        String oldPassword = sc.nextLine();
 
-        System.out.print("Please enter new password: ");
-        String newPassword = sc.nextLine();
+            if (password.equalsIgnoreCase(oldPassword)){
 
-        if (password.equalsIgnoreCase(oldPassword)){
+                System.out.println("Password matches. Updating password...");
 
-            System.out.println("Password matches. Updating password...");
+                String resetPasswordQueery = "UPDATE user SET password = ? WHERE id = ?";
+                PreparedStatement preparedStatement = connection.prepareStatement(resetPasswordQueery);
+                preparedStatement.setString(1, newPassword);
+                preparedStatement.setInt(2, userId);
+                preparedStatement.executeUpdate();
 
-            String resetPasswordQueery = "UPDATE user SET password = ? WHERE id = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(resetPasswordQueery);
-            preparedStatement.setString(1, newPassword);
-            preparedStatement.setInt(2, userId);
-            preparedStatement.executeUpdate();
-
-            System.out.println("Password updated successfully!");
-        } else {
-            System.out.println("Password does not match. Password not updated!");
-        }
+                System.out.println("Password updated successfully!");
+                match = false;
+            } else {
+                System.out.println("Password does not match. Password not updated!");
+                match = true;
+            }
+        }while (match);
     }
 
     public void deleteUser(int userId) throws SQLException{

@@ -39,4 +39,5 @@ public class UserServiceTest {
 //        Assert
         Mockito.verify(mockedUserDao, Mockito.times(1)).loginUser();
     }
+
 }

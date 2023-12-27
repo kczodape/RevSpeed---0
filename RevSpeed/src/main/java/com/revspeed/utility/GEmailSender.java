@@ -5,11 +5,15 @@ import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import java.util.Properties;
+import java.util.ResourceBundle;
+
 public class GEmailSender {
+    static ResourceBundle resourceBundle = ResourceBundle.getBundle("emailCredentials");
     private static final String SMTP_HOST = "smtp.gmail.com";
     private static final String SMTP_PORT = "587";
-    private static final String USERNAME = "revspeed.org@gmail.com";
-    private static final String PASSWORD = "cvdhdfpadzulgwzf";
+//    private static final String USERNAME = "revspeed.org@gmail.com";
+    private static final String USERNAME = resourceBundle.getString("USERNAME");
+    private static final String PASSWORD = resourceBundle.getString("PASSWORD");
 
     public boolean sendRegistrationEmail(String to) {
         String subject = "Welcome to RevSpeed";

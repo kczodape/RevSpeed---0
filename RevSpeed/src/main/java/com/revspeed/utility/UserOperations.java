@@ -175,16 +175,4 @@ public class UserOperations {
         }while (match);
     }
 
-    public void deleteUser(int userId) throws SQLException{
-        System.out.println("Press 1: Confirm delete\nPress 0: Cancel");
-        int userChoice = sc.nextInt();
-
-        String deleteUserQuery = (userChoice == 1) ? "DELETE FROM user WHERE id = ?" : "SELECT 'Cancel'";
-
-        PreparedStatement preparedStatement = connection.prepareStatement(deleteUserQuery);
-        preparedStatement.setInt(1, userId);
-        preparedStatement.executeUpdate();
-
-    }
-
 }

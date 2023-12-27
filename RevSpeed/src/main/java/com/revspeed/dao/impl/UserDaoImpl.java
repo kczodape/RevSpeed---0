@@ -196,7 +196,6 @@ public class UserDaoImpl implements UserDao {
                 System.out.println("| Press 4: View Services of RevSpeed            |");
                 System.out.println("| Press 5: Show Bills                           |");
                 System.out.println("| Press 6: Show My OTT Platforms                |");
-                System.out.println("| Press 7: Delete Profile                       |");
                 System.out.println("+-----------------------------------------------+");
 
 
@@ -221,9 +220,6 @@ public class UserDaoImpl implements UserDao {
                         break;
                     case 6:
                         servicesService.getUsersOTTPlatforms(id);
-                        break;
-                    case 7:
-                        userOperations.deleteUser(id);
                         break;
                     default:
                         System.out.println("please press valid key !");

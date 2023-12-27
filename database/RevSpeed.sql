@@ -228,6 +228,7 @@ INSERT INTO Dth_service_plans (dth_sr_id, language, channel_category) VALUES
 select * from Dth_service_plans;
 
 -- Create DTH_channel_details table
+drop table DTH_channel_details;
 CREATE TABLE DTH_channel_details (
     dth_chnl_dt_id INT PRIMARY KEY AUTO_INCREMENT,
     dth_sr_pl_dt_id INT,

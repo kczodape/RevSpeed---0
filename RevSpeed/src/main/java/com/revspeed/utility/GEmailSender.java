@@ -13,14 +13,14 @@ public class GEmailSender {
 
     public boolean sendRegistrationEmail(String to) {
         String subject = "Welcome to RevSpeed";
-        String text = "Congratulations on registering with RevNess. Welcome to RevSpeed!";
+        String text = "Congratulations on registering with RevSpeed. Welcome to RevSpeed!";
 
         return sendEmail(to, subject, text);
     }
 
     public boolean sendPurchaseConfirmationEmail(String to, String serviceName, double billAmount) {
         String subject = "Purchase Confirmation from RevSpeed";
-        String text = "Thank you for purchasing the service '" + serviceName + "'. Your bill amount is: $" + billAmount;
+        String text = "Thank you for purchasing the service '" + serviceName + "'. Your bill ammount is: \u20B9 " + billAmount;
 
         return sendEmail(to, subject, text);
     }

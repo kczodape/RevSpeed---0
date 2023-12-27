@@ -3,6 +3,8 @@ package com.revspeed.dao.impl;
 import com.revspeed.dao.ServicesDao;
 import com.revspeed.db.DB;
 import com.revspeed.model.User;
+import com.revspeed.utility.GEmailSender;
+import com.revspeed.utility.OptOutPlan;
 
 import java.lang.ref.PhantomReference;
 import java.sql.*;
@@ -14,6 +16,8 @@ public class ServicesDaoImpl implements ServicesDao {
     Connection connection = DB.getConnection();
     Scanner sc = new Scanner(System.in);
     int userId = UserDaoImpl.id;
+    String userMail = UserDaoImpl.email;
+    GEmailSender gEmailSender = new GEmailSender();
     public ServicesDaoImpl() throws SQLException {
     }
 
@@ -90,17 +94,16 @@ public class ServicesDaoImpl implements ServicesDao {
         System.out.printf("| %-10s | %-60s | %-25s |\n", "Plan ID", "Plan Name", "Price");
         System.out.println("+----------------------------------------------------------------------------------------+");
 
+        double price = 0.0;
+        String broadbandPlanName = "";
         while (resultSet.next()){
             int brodbandServiceId = resultSet.getInt("br_sr_pl_dt_id");
-            String broadbandPlanName = resultSet.getString("plan_name");
-            double price = resultSet.getDouble("price");
+            broadbandPlanName = resultSet.getString("plan_name");
+            price = resultSet.getDouble("price");
 
             System.out.printf("| %-10s | %-60s | %-10s |\n", brodbandServiceId, broadbandPlanName, price);
         }
         System.out.println("+----------------------------------------------------------------------------------------+");
-
-
-
 
         CallableStatement callableStatement = connection.prepareCall("{CALL GetPlatformNameByBrSrId(?)}");
         callableStatement.setInt(1, id);
@@ -144,13 +147,23 @@ public class ServicesDaoImpl implements ServicesDao {
         long endDateMillis = purchaseDate.getTime() + TimeUnit.DAYS.toMillis(subscriptionDays);
         Date endDate = new Date(endDateMillis);
 
+        // Calculate two days before the endDate
+        long twoDaysBeforeMillis = endDateMillis - TimeUnit.DAYS.toMillis(2);
+        // Create a Date object for two days before the endDate
+        Date twoDaysBeforeDate = new Date(twoDaysBeforeMillis);
+        // Compare dates
+        if (purchaseDate.compareTo(twoDaysBeforeDate) == 0) {
+            gEmailSender.sendSubscriptionReminderEmail(userMail, broadbandPlanName, 2);
+        }
+
         // Insert the purchased plan into User_Service_Link
-        String insertUserSubscription = "INSERT INTO User_Service_Link (user_id, br_sr_dt_id, subscription_start_date, subscription_end_date) VALUES (?, ?, ?, ?)";
+        String insertUserSubscription = "INSERT INTO User_Service_Link (user_id, br_sr_dt_id, subscription_start_date, subscription_end_date, user_status) VALUES (?, ?, ?, ?, ?)";
         PreparedStatement insertSubscriptionStatement = connection.prepareStatement(insertUserSubscription);
         insertSubscriptionStatement.setInt(1, userId);
         insertSubscriptionStatement.setInt(2, selectedPlanId);
         insertSubscriptionStatement.setDate(3, purchaseDate);
         insertSubscriptionStatement.setDate(4, endDate);
+        insertSubscriptionStatement.setInt(5, 1);
 
         // Execute the insert statement
         insertSubscriptionStatement.executeUpdate();
@@ -158,7 +171,7 @@ public class ServicesDaoImpl implements ServicesDao {
         System.out.println("|   Subscription purchased successfully!   |");
         System.out.println("+------------------------------------------+");
 
-
+        gEmailSender.sendPurchaseConfirmationEmail(userMail, broadbandPlanName, price);
     }
 
     @Override
@@ -214,32 +227,33 @@ public class ServicesDaoImpl implements ServicesDao {
         System.out.println("+------------------------------------------+");
         System.out.printf("| %-10s | %-27s |\n", "Press", "Buy");
         System.out.println("+------------------------------------------+");
+        String dthPlanName = "";
         while (resultSet.next()){
             int planId = resultSet.getInt(1);
-            String planName = resultSet.getString(2);
-            System.out.printf("| Press %-3s | Buy %-24s |\n", planId, planName, "plan");
+            dthPlanName = resultSet.getString(2);
+            System.out.printf("| Press %-3s | Buy %-24s |\n", planId, dthPlanName, "plan");
         }
         System.out.println("+------------------------------------------+");
 
         int check = sc.nextInt();
         switch (check){
             case 1:
-                getPlansForCategory(check);
+                getPlansForCategory(check, dthPlanName);
                 break;
             case 2:
-                getPlansForCategory(check);
+                getPlansForCategory(check, dthPlanName);
                 break;
             case 3:
-                getPlansForCategory(check);
+                getPlansForCategory(check, dthPlanName);
                 break;
             case 4:
-                getPlansForCategory(check);
+                getPlansForCategory(check, dthPlanName);
                 break;
             case 5:
-                getPlansForCategory(check);
+                getPlansForCategory(check, dthPlanName);
                 break;
             case 6:
-                getPlansForCategory(check);
+                getPlansForCategory(check, dthPlanName);
                 break;
             default:
                 System.out.println("Please press valid key");
@@ -247,9 +261,9 @@ public class ServicesDaoImpl implements ServicesDao {
     }
 
     @Override
-    public void getPlansForCategory(int planId) throws SQLException {
+    public void getPlansForCategory(int planId, String dthPlanName) throws SQLException {
 
-        String insertUserLinkQuerry = "INSERT INTO User_Service_Link (user_id, dth_service_plan_id, subscription_start_date, subscription_end_date) VALUES (?, ?, ?, ?)";
+        String insertUserLinkQuerry = "INSERT INTO User_Service_Link (user_id, dth_service_plan_id, subscription_start_date, subscription_end_date, user_status) VALUES (?, ?, ?, ?, ?)";
         PreparedStatement insertUserLinkStatement = connection.prepareStatement(insertUserLinkQuerry);
 
         // Assuming you have user_id
@@ -264,11 +278,19 @@ public class ServicesDaoImpl implements ServicesDao {
         LocalDate endDate = startDate.plusDays(28);
         insertUserLinkStatement.setDate(4, java.sql.Date.valueOf(endDate));  // Convert LocalDate to java.sql.Date
 
+        insertUserLinkStatement.setInt(5, 1);
+
+        // calculating date for sending  remind mail
+        LocalDate remindingDate = endDate.minusDays(2);
+
         // Execute the insert statement
         int rowsAffected = insertUserLinkStatement.executeUpdate();
 
         if (rowsAffected > 0) {
             System.out.println("DTH Plan purchased successfully");
+            if (startDate.compareTo(remindingDate) == 0){
+                gEmailSender.sendSubscriptionReminderEmail(userMail, dthPlanName, 2);
+            }
         } else {
             System.out.println("Failed to purchase DTH Plan");
         }
@@ -282,15 +304,16 @@ public class ServicesDaoImpl implements ServicesDao {
         System.out.printf("| %-29s | %-6s |\n", "Channel name", "Price");
         System.out.println("+----------------------------------------+");
 
+        double totalDthChannelPrice = 0.0;
         while (resultSet.next()){
             int dthChnlId = resultSet.getInt(1);
             String channelName = resultSet.getString(2);
             double price = resultSet.getDouble(3);
             System.out.printf("| %-20s | %-6.2f |\n", channelName, price);
-//            System.out.println("Channel name: "+channelName+" Price: "+price);
+            totalDthChannelPrice = totalDthChannelPrice + price;
         }
         System.out.println("+----------------------------------------+");
-
+        gEmailSender.sendPurchaseConfirmationEmail(userMail, dthPlanName, totalDthChannelPrice);
     }
 
     @Override

@@ -7,6 +7,8 @@ import com.revspeed.model.User;
 
 import java.io.InputStream;
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -14,6 +16,7 @@ import java.util.regex.Pattern;
 
 import com.revspeed.services.ServicesService;
 import com.revspeed.utility.GEmailSender;
+import com.revspeed.utility.OptOutPlan;
 import com.revspeed.utility.UserOperations;
 
 public class UserDaoImpl implements UserDao {
@@ -111,6 +114,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     static int id;
+    static String email;
     @Override
     public void loginUser() throws SQLException {
 
@@ -140,7 +144,7 @@ public class UserDaoImpl implements UserDao {
                         String name = resultSet.getString("name");
                         Long phoneNumber = resultSet.getLong("phone_number");
                         String address = resultSet.getString("address");
-                        String email = resultSet.getString("email_id");
+                        email = resultSet.getString("email_id");
                         String password = resultSet.getString("password");
                         String role = resultSet.getString("role");
                         loginSuccessful = true;
@@ -154,6 +158,17 @@ public class UserDaoImpl implements UserDao {
                         } else {
                             System.out.println("Role is null. Unable to create Profile.");
                         }
+
+                        // Get today's date
+                        LocalDate today = LocalDate.now();
+
+                        // Define a formatter for MySQL DATE format
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+                        // Format the date
+                        String formattedDate = today.format(formatter);
+
+                        OptOutPlan.optOutPlan(formattedDate);
 
                     } else {
                         System.out.println(" \n***************************************");

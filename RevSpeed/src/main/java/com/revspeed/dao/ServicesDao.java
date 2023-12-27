@@ -10,5 +10,5 @@ public interface ServicesDao {
     public void seeMyBill(int id) throws SQLException;
     public void getUsersOTTPlatforms(int id) throws SQLException;
     public void getPlansForLanguage(String language) throws SQLException;
-    public void getPlansForCategory(int planId) throws SQLException;
+    public void getPlansForCategory(int planId, String dthPlanName) throws SQLException;
 }

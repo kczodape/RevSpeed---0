@@ -255,12 +255,13 @@ CREATE TABLE User_Service_Link (
     dth_service_plan_id  INT,
     subscription_start_date DATE,
     subscription_end_date DATE,
+    user_status boolean default false,
     FOREIGN KEY (user_id) REFERENCES User(id),
     FOREIGN KEY (br_sr_dt_id) REFERENCES Broadband_service_plans_details(br_sr_pl_dt_id),
     FOREIGN KEY (dth_service_plan_id ) REFERENCES Dth_service_plans(dth_sr_pl_dt_id)
 );
 select * from User_Service_Link;
-
+Alter table User_Service_Link add column user_status boolean;
 -- ALL GET QUERIES
 
 -- Querry to get user_name, phone_number, address, email_id, subscription_plan, subscription_start_date, subscription_end_date of perticular user
@@ -314,13 +315,13 @@ BEGIN
         User AS U
     LEFT JOIN User_Service_Link AS USL ON U.id = USL.user_id
     LEFT JOIN Broadband_service_plans_details AS BSLD ON USL.br_sr_dt_id = BSLD.br_sr_pl_dt_id
-    WHERE U.id = userId
+    WHERE U.id = userId and user_status = 1
     GROUP BY
         U.id, U.name, U.phone_number, U.address, U.email_id, BSLD.plan_name, USL.subscription_start_date, USL.subscription_end_date;
 END //
 
 DELIMITER ;
-call GetUserBroadbandDetails(1);
+call GetUserBroadbandDetails(4);
 
 
 

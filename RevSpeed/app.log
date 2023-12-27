@@ -1,0 +1,12 @@
+2023-12-28 00:22:10,770 INFO [main] c.r.a.Main [Main.java:31] -- User entered to the application
+2023-12-28 00:24:32,402 INFO [main] c.r.a.Main [Main.java:31] -- User entered to the application
+2023-12-28 00:53:34,110 INFO [main] c.r.db.DB [DB.java:38] -- Database connection establised
+2023-12-28 00:53:34,112 INFO [main] c.r.a.Main [Main.java:31] -- User entered to the application
+2023-12-28 00:53:37,619 INFO [main] c.r.db.DB [UserDaoImpl.java:142] -- User trying to login by entering credentials
+2023-12-28 00:53:51,814 INFO [main] c.r.db.DB [UserDaoImpl.java:169] -- User login successfull
+2023-12-28 00:53:51,819 INFO [main] c.r.db.DB [UserDaoImpl.java:217] -- User entered in dashboard page
+2023-12-28 00:53:54,099 INFO [main] c.r.db.DB [UserOperations.java:41] -- Showing userd profile
+2023-12-28 00:54:10,451 INFO [main] c.r.db.DB [UserDaoImpl.java:217] -- User entered in dashboard page
+2023-12-28 00:54:20,835 INFO [main] c.r.db.DB [UserOperations.java:75] -- Updating only name
+2023-12-28 00:54:20,880 INFO [main] c.r.db.DB [UserOperations.java:160] -- Updation of profile done successfully
+2023-12-28 00:54:26,869 INFO [main] c.r.db.DB [UserDaoImpl.java:217] -- User entered in dashboard page

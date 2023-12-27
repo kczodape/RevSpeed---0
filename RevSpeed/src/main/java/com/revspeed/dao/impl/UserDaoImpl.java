@@ -18,8 +18,11 @@ import com.revspeed.services.ServicesService;
 import com.revspeed.utility.GEmailSender;
 import com.revspeed.utility.OptOutPlan;
 import com.revspeed.utility.UserOperations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserDaoImpl implements UserDao {
+    private static final Logger logger = LoggerFactory.getLogger(DB.class);
 
      private Connection connection = DB.getConnection();
     InputStream inputStream;
@@ -46,9 +49,12 @@ public class UserDaoImpl implements UserDao {
         System.out.println("|   User Data Entry Form   |");
         System.out.println("+-------------------------+");
 
+        logger.info("User trying to register by entering details");
+
         System.out.print("| Enter your name:        ");
         String name = sc.nextLine();
         System.out.println("+-------------------------+");
+        logger.info("User entered email");
 
         Long phone_number = 0L;
         boolean exception;
@@ -59,6 +65,7 @@ public class UserDaoImpl implements UserDao {
                 phone_number = sc.nextLong();
             }catch (InputMismatchException e){
                 System.out.println("Please enter a valid phone number !");
+                logger.error("User enter value except from number");
                 exception = true;
                 sc.nextLine();  // Clear the buffer
             }
@@ -82,10 +89,12 @@ public class UserDaoImpl implements UserDao {
 
             if (emailExist) {
                 System.out.println("| Please enter a different email ! |");
+                logger.info("User entered same email which is present in database");
                 System.out.println("+-------------------------+");
             }
             if (!emailValid) {
                 System.out.println("| Entered email is not valid. Please enter a valid email ! |");
+                logger.info("User entered invalid mail");
                 System.out.println("+-------------------------+");
             }
         } while (emailExist || !emailValid);
@@ -107,9 +116,12 @@ public class UserDaoImpl implements UserDao {
             System.out.println("+-------------------------+");
             System.out.println("|  Registration Successful |");
             System.out.println("+-------------------------+");
+
+            logger.info("User registered successfully");
             GEmailSender gEmailSender = new GEmailSender();
 
             gEmailSender.sendRegistrationEmail(user.getEmailId());
+            logger.info("Registration mail sended successfully");
         }
     }
 
@@ -127,6 +139,7 @@ public class UserDaoImpl implements UserDao {
             System.out.println("\n ***************************************");
             System.out.println("*        Welcome to RevSpeed Login       *");
             System.out.println(" ***************************************\n");
+            logger.info("User trying to login by entering credentials");
             System.out.print("* Enter your email:    ");
             String enteredEmail = sc.nextLine();
 
@@ -153,6 +166,8 @@ public class UserDaoImpl implements UserDao {
                         System.out.println("*          Login Successful!             *");
                         System.out.println(" ***************************************\n");
 
+                        logger.info("User login successfull");
+
                         if (role != null) {
                             userProfile(id, name, phoneNumber, address, email, password, role);
                         } else {
@@ -174,6 +189,7 @@ public class UserDaoImpl implements UserDao {
                         System.out.println(" \n***************************************");
                         System.out.println("*   Invalid Credentials. Try Again.     *");
                         System.out.println(" ***************************************");
+                        logger.warn("User entered invalid credentials");
                     }
                 }
         } while (!loginSuccessful);
@@ -198,6 +214,7 @@ public class UserDaoImpl implements UserDao {
                 System.out.println("| Press 6: Show My OTT Platforms                |");
                 System.out.println("+-----------------------------------------------+");
 
+                logger.info("User entered in dashboard page");
 
                 System.out.print("* Enter your choice: ");
                 int check = sc.nextInt();

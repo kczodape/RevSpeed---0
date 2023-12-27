@@ -5,6 +5,8 @@ import com.revspeed.db.DB;
 import com.revspeed.model.User;
 import com.revspeed.utility.GEmailSender;
 import com.revspeed.utility.OptOutPlan;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.ref.PhantomReference;
 import java.sql.*;
@@ -13,6 +15,7 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class ServicesDaoImpl implements ServicesDao {
+    private static final Logger logger = LoggerFactory.getLogger(DB.class);
     Connection connection = DB.getConnection();
     Scanner sc = new Scanner(System.in);
     int userId = UserDaoImpl.id;
@@ -37,6 +40,9 @@ public class ServicesDaoImpl implements ServicesDao {
             System.out.printf("| Press %d: See %-27s |\n", id, serviceName);
         }
         System.out.println("+------------------------------------------+");
+
+        logger.info("Showed both service name");
+
         System.out.print("* Enter your choice: ");
 
         int choice = sc.nextInt();
@@ -66,6 +72,9 @@ public class ServicesDaoImpl implements ServicesDao {
             System.out.printf("| Press %d: See %-10s plan    |\n", id, serviceName);
         }
         System.out.println("+---------------------------------+");
+
+        logger.info("Showing list of broadband services");
+
         System.out.print("* Enter your choice: ");
         int choice = sc.nextInt();
         switch (choice){
@@ -105,6 +114,8 @@ public class ServicesDaoImpl implements ServicesDao {
         }
         System.out.println("+----------------------------------------------------------------------------------------+");
 
+        logger.info("Showing choosen broadban service");
+
         CallableStatement callableStatement = connection.prepareCall("{CALL GetPlatformNameByBrSrId(?)}");
         callableStatement.setInt(1, id);
         ResultSet callableResultSet = callableStatement.executeQuery();
@@ -116,6 +127,8 @@ public class ServicesDaoImpl implements ServicesDao {
             System.out.printf("| %-65s |\n", platformName);
         }
         System.out.println("+-------------------------------------------------------------------+");
+
+        logger.info("Showing platform name to the user");
 
         System.out.print("* Choose the plan ID to purchace: ");
         int selectedPlanId = sc.nextInt();
@@ -154,6 +167,7 @@ public class ServicesDaoImpl implements ServicesDao {
         // Compare dates
         if (purchaseDate.compareTo(twoDaysBeforeDate) == 0) {
             gEmailSender.sendSubscriptionReminderEmail(userMail, broadbandPlanName, 2);
+            logger.info("Sending email for reminding plan will to opt out in 2 days");
         }
 
         // Insert the purchased plan into User_Service_Link
@@ -172,6 +186,7 @@ public class ServicesDaoImpl implements ServicesDao {
         System.out.println("+------------------------------------------+");
 
         gEmailSender.sendPurchaseConfirmationEmail(userMail, broadbandPlanName, price);
+        logger.info("Sending email of confirmed purchased subscription");
     }
 
     @Override
@@ -202,9 +217,9 @@ public class ServicesDaoImpl implements ServicesDao {
             int languageId = resultSet.getInt(1);
             String language = resultSet.getString(2);
             System.out.printf("| Press %-2d : Choose %-5s language channels |\n", languageId, language);
-
         }
         System.out.println("+-------------------------------------------+");
+        logger.info("Showing DTH services");
         System.out.print("* Enter your choice: ");
         int check = sc.nextInt();
         switch (check){
@@ -234,6 +249,7 @@ public class ServicesDaoImpl implements ServicesDao {
             System.out.printf("| Press %-3s | Buy %-24s |\n", planId, dthPlanName, "plan");
         }
         System.out.println("+------------------------------------------+");
+        logger.info("Showing dth plan of selected language");
 
         int check = sc.nextInt();
         switch (check){
@@ -290,9 +306,11 @@ public class ServicesDaoImpl implements ServicesDao {
             System.out.println("DTH Plan purchased successfully");
             if (startDate.compareTo(remindingDate) == 0){
                 gEmailSender.sendSubscriptionReminderEmail(userMail, dthPlanName, 2);
+                logger.info("Sending email for confirmed purchase of DTH service");
             }
         } else {
             System.out.println("Failed to purchase DTH Plan");
+            logger.info("Failed to purchase DTH plan");
         }
 
         System.out.println("You got this plan");
@@ -349,6 +367,8 @@ public class ServicesDaoImpl implements ServicesDao {
             System.out.printf("| %-48s | %-30s | %-30s | %-20.2f |%n", subscribedPlan, startDate, endDate, price);
             System.out.println("+-------------------------------------------------------------------------------------------------------------------------------------------+");
         }
+
+        logger.info("Showing broadband service bill to the user");
     }
 
     public void dthServiceBillDetails(int id) throws SQLException{
@@ -366,7 +386,10 @@ public class ServicesDaoImpl implements ServicesDao {
             double channelPrice = resultSet.getDouble("channel_price");
 
             System.out.printf("| %-20s | %-40s | %-23s | %-20s | %-10.2f |%n", planName, channelName, startDate, endDate, channelPrice);
-            System.out.println("+-------------------------------------------------------------------------------------------------------------------------------+");        }
+            System.out.println("+-------------------------------------------------------------------------------------------------------------------------------+");
+        }
+
+        logger.info("Showing DTH service bill to the user");
     }
 
 }

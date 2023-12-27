@@ -1,6 +1,8 @@
 package com.revspeed.utility;
 
 import com.revspeed.db.DB;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.Scanner;
@@ -8,6 +10,8 @@ import java.util.Scanner;
 //import static com.revspeed.utility.Profile.sc;
 
 public class UserOperations {
+    private static final Logger logger = LoggerFactory.getLogger(DB.class);
+
     Scanner sc = new Scanner(System.in);
     public Connection connection;
 
@@ -32,7 +36,10 @@ public class UserOperations {
         System.out.printf("| %-20s %-20s |\n", "Address:", address);
         System.out.println("+-------------------------------------------+");
         System.out.printf("| %-20s %-20s |\n", "Email:", email);
-        System.out.println("+-------------------------------------------+");    }
+        System.out.println("+-------------------------------------------+");
+
+        logger.info("Showing userd profile");
+    }
 
     public void updateProfile(int userId) throws SQLException {
 
@@ -65,6 +72,7 @@ public class UserOperations {
                 System.out.println("| Option 1: Update Name                           |");
                 System.out.print("| Enter new name: ");
                 name = sc.nextLine();
+                logger.info("Updating only name");
                 break;
             case 2:
                 System.out.println("| Option 2: Update Phone Number                   |");
@@ -72,9 +80,11 @@ public class UserOperations {
                 if (sc.hasNextLong()) {
                     phoneNumber = sc.nextLong();
                     sc.nextLine(); // Consume the newline character
+                    logger.info("Updating only phone number");
                 } else {
                     System.out.println("| Invalid input. Phone number not updated.       |");
                     System.out.println("+-------------------------------------------------+");
+                    logger.info("Entered wrong phone number while updating only phone number");
                     return;
                 }
                 break;
@@ -82,22 +92,25 @@ public class UserOperations {
                 System.out.println("| Option 3: Update Address                        |");
                 System.out.print("| Enter new address: ");
                 address = sc.nextLine();
+                logger.info("Updating only address");
                 break;
             case 4:
                 System.out.println("| Option 4: Update Email                          |");
                 System.out.print("| Enter new email: ");
                 email = sc.nextLine();
+                logger.info("Updating only email");
                 break;
             case 5:
                 System.out.println("| Option 5: Update Password                       |");
                 System.out.print("| Enter new password: ");
                 password = sc.nextLine();
+                logger.info("Updating only password");
                 break;
             case 6:
                 System.out.println("| Option 6: Update All                            |");
                 System.out.print("| Enter new name: ");
                 name = sc.nextLine();
-
+                logger.info("Updating only all details");
                 System.out.print("| Enter new phone number: ");
                 if (sc.hasNextLong()) {
                     phoneNumber = sc.nextLong();
@@ -142,7 +155,10 @@ public class UserOperations {
 
             System.out.println("+------------------------------------+");
             System.out.println("|   Profile updated successfully!   |");
-            System.out.println("+------------------------------------+");        }
+            System.out.println("+------------------------------------+");
+
+            logger.info("Updation of profile done successfully");
+        }
     }
 
     public void resetPassword(int userId, String password) throws SQLException {
@@ -167,9 +183,11 @@ public class UserOperations {
                 preparedStatement.executeUpdate();
 
                 System.out.println("Password updated successfully!");
+                logger.info("Password updated successfully");
                 match = false;
             } else {
                 System.out.println("Password does not match. Password not updated!");
+                logger.info("Password does not match. Password not updated!");
                 match = true;
             }
         }while (match);

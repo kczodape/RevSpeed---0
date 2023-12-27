@@ -1,12 +1,15 @@
 package com.revspeed.db;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 public class DB {
-
+    private static final Logger logger = LoggerFactory.getLogger(DB.class);
     static Connection connection = null;
 
     public static Connection getConnection() throws SQLException {
@@ -32,6 +35,7 @@ public class DB {
 //            e.printStackTrace();
 //        }
 
+        logger.info("Database connection establised");
         return connection;
 
     }
